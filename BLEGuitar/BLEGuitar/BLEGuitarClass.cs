@@ -91,10 +91,6 @@ namespace BLEGuitar
 				}				
 			}
 
-
-
-
-
             var service = await guitar.GetServiceAsync(serviceGUID);
             var characteristic = await service.GetCharacteristicAsync(characteristicsGUID);
             characteristic.ValueUpdated += (o, args) =>

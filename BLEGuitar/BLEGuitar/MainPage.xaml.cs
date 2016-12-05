@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace BLEGuitar
             InitializeComponent();
             guitar.BluetoothError += Guitar_BluetoothError;
             guitar.MessageReceived += Guitar_MessageReceived;
+
+			Debug.WriteLine(btnScan.Id);
+			Debug.WriteLine(btnConnect.Id);
         }
 
         private void Guitar_MessageReceived(object sender, BLEGuitarDevice.MessageReceivedArgs e)
@@ -30,9 +34,16 @@ namespace BLEGuitar
             DisplayAlert("UhOh!", "Your bluetooth adapter has an issue", "Ok I will correct this!");
         }
 
-        private async void OnButtonClicked(object sender, EventArgs e)
+        private async void btnScan_OnButtonClicked(object sender, EventArgs e)
         {
+			guitar.DeviceMac = string.Empty;
             await guitar.Connect();
         }
+
+        private async void btnConnect_OnButtonClicked(object sender, EventArgs e)
+		{
+			guitar.DeviceMac = txtMacAddress.Text;
+			await guitar.Connect();
+		}
     }
 }

@@ -4,16 +4,23 @@
              xmlns:local="clr-namespace:BLEGuitar"
              x:Class="BLEGuitar.MainPage">
  
-  <StackLayout Padding="0,20,0,0">
-    <Label Text="Welcome to Xamarin Forms!"
+  <StackLayout Padding="20,20,20,20">
+    <Label Text="Connect your BLE Guitar!"
              VerticalOptions="Center"
              HorizontalOptions="Center" />
 
-    <Button x:Name="btnActivate" 
-            Text="Activate Bluetooth!" 
-            Clicked="OnButtonClicked"/>
-  
-    <Label x:Name="lblStatus"
+    <Button x:Name="btnScan" 
+            Text="Scan and Connect" 
+            Clicked="btnScan_OnButtonClicked" />
+
+    <Button x:Name="btnConnect" 
+            Text="Connect to known device" 
+            Clicked="btnConnect_OnButtonClicked" />
+		
+    <Entry x:Name="txtMacAddress" 
+			Text="fdf7bc034270" />
+		
+	<Label x:Name="lblStatus"
           Text="Status"
           VerticalOptions="Center"
           HorizontalOptions="Center" />

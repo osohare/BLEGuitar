@@ -13,11 +13,27 @@ namespace BLEGuitar
 {
     public class BLEGuitarDevice
     {
-        private Guid knownDeviceGUID = new Guid("00000000-0000-0000-0000-fdf7bc034270");
+		private const string GuidMask = "00000000-0000-0000-0000-{0}"; //fdf7bc0342700
         private Guid serviceGUID = new Guid("533e1523-3abe-f33f-cd00-594e8b0a8ea3");
         private Guid characteristicsGUID = new Guid("533e1524-3abe-f33f-cd00-594e8b0a8ea3");
         private IDevice guitar;
 		private List<IDevice> deviceList = new List<IDevice>();
+
+		private string _deviceMac = string.Empty;
+		public string DeviceMac
+		{
+			get 
+			{ 
+				return _deviceMac; 
+			}
+			set
+			{
+				if (!string.IsNullOrWhiteSpace(value) && value.Length == 12)
+					_deviceMac = string.Format(GuidMask, value);
+				else
+					_deviceMac = string.Empty;
+			}
+		}
 
         public event EventHandler BluetoothError;
         protected void OnBluetoothError(EventArgs e)
@@ -63,32 +79,38 @@ namespace BLEGuitar
             }
 
 			CancellationToken cancellationToken = new CancellationToken();
-			if (true)
+			try
 			{
-				try
+				if (!string.IsNullOrWhiteSpace(DeviceMac))
+				{
+					guitar = await adapter.ConnectToKnownDeviceAsync(new Guid(DeviceMac), cancellationToken);
+				}
+				else
 				{
 					adapter.DeviceDiscovered += (s, a) => deviceList.Add(a.Device);
 					await adapter.StartScanningForDevicesAsync();
+					if (deviceList.Count < 1)
+						throw new ArgumentException("No devices were found while scanning");
 					guitar = deviceList[0];
 					await adapter.ConnectToDeviceAsync(guitar, false, cancellationToken);
 				}
-				catch (DeviceConnectionException e)
-				{
-					OnBluetoothError(EventArgs.Empty);
-					Debug.WriteLine($"Could not connect to device " + e.Message);
-				}
 			}
-			else 
+			catch (DeviceConnectionException e)
+			{
+				OnBluetoothError(EventArgs.Empty);
+				Debug.WriteLine($"Could not connect to device " + e.Message);
+				return;
+			}
+			catch (ArgumentException argEx)
+			{
+				OnBluetoothError(EventArgs.Empty);
+				Debug.WriteLine($"Could not connect to device " + argEx.Message);
+				return;
+			}
+			catch (Exception)
 			{ 
-				try
-				{
-					guitar = await adapter.ConnectToKnownDeviceAsync(knownDeviceGUID, cancellationToken);
-				}
-				catch (DeviceConnectionException e)
-				{
-					OnBluetoothError(EventArgs.Empty);
-					Debug.WriteLine($"Could not connect to device " + e.Message);
-				}				
+				OnBluetoothError(EventArgs.Empty);
+				return;
 			}
 
             var service = await guitar.GetServiceAsync(serviceGUID);

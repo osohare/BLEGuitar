@@ -25,7 +25,8 @@
     <JavaOptions />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <AndroidTlsProvider></AndroidTlsProvider>
+    <AndroidTlsProvider>
+    </AndroidTlsProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -143,7 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BLEGuitar\BLEGuitar.csproj">
-      <Project>{8C0B9473-5604-4768-BC53-C681C7E7D2AB}</Project>
+      <Project>{8c0b9473-5604-4768-bc53-c681c7e7d2ab}</Project>
       <Name>BLEGuitar</Name>
     </ProjectReference>
   </ItemGroup>

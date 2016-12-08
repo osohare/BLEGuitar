@@ -1,4 +1,5 @@
-﻿using Plugin.BLE;
+﻿using BLEGuitar.Commons.Network;
+using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.Exceptions;
 using System;
@@ -18,6 +19,8 @@ namespace BLEGuitar
         private Guid characteristicsGUID = new Guid("533e1524-3abe-f33f-cd00-594e8b0a8ea3");
         private IDevice guitar;
 		private List<IDevice> deviceList = new List<IDevice>();
+
+        private EventClient client = new EventClient();
 
 		private string _deviceMac = string.Empty;
 		public string DeviceMac
@@ -117,7 +120,14 @@ namespace BLEGuitar
             var characteristic = await service.GetCharacteristicAsync(characteristicsGUID);
             characteristic.ValueUpdated += (o, args) =>
             {
-                OnMessageReceived(new MessageReceivedArgs() { Message = BitConverter.ToString(args.Characteristic.Value) });
+                var values = args.Characteristic.Value;
+                OnMessageReceived(
+                    new MessageReceivedArgs()
+                    {
+                        Message = BitConverter.ToString(values)
+                    }
+                );
+                client.Send();
             };
             await characteristic.StartUpdatesAsync();
         }

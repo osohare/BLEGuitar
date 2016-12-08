@@ -127,7 +127,7 @@ namespace BLEGuitar
                         Message = BitConverter.ToString(values)
                     }
                 );
-                client.Send();
+                client.Send(values);
             };
             await characteristic.StartUpdatesAsync();
         }

@@ -9,8 +9,6 @@ namespace BLEGuitar.Commons.Network
 {
     public class EventClient
     {
-        private byte EoM = 0x0;
-
         public async void Send(byte[] data)
         {
             var address = "10.173.53.149";
@@ -20,7 +18,6 @@ namespace BLEGuitar.Commons.Network
             await client.ConnectAsync(address, port);
 
             await client.WriteStream.WriteAsync(data, 0, data.Length);
-            client.WriteStream.WriteByte(EoM);
             await client.WriteStream.FlushAsync();
 
             await client.DisconnectAsync();

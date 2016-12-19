@@ -52,6 +52,10 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsInput, Version=1.0.4.0, Culture=neutral, PublicKeyToken=9b287f7dc5073cad, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulator.1.0.4.0\lib\net20\WindowsInput.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Form1.cs">
@@ -92,6 +96,10 @@
     <ProjectReference Include="..\BLEGuitar.Commons\BLEGuitar.Commons.csproj">
       <Project>{94F82982-16EE-4751-83AE-6371A286FC7B}</Project>
       <Name>BLEGuitar.Commons</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BLEGuitar.Driver\BLEGuitar.Driver.csproj">
+      <Project>{36d2ccea-66ec-4d43-bae7-32fa30645bc7}</Project>
+      <Name>BLEGuitar.Driver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

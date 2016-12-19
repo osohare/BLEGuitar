@@ -10,6 +10,19 @@ namespace BLEGuitar.Commons.Network
 {
     public class EventServer
     {
+        public class DataReceivedArgs : EventArgs
+        {
+            public GuitarButtonsState Snapshot { get; set; }
+        }
+
+        public event EventHandler<DataReceivedArgs> DataReceived;
+        protected void OnDataReceived(DataReceivedArgs e)
+        {
+            DataReceived?.Invoke(this, e);
+        }
+
+        private EventDecoder decoder = new EventDecoder();
+
         public async void Listen()
         {
             var listenPort = 11000;
@@ -21,13 +34,16 @@ namespace BLEGuitar.Commons.Network
                 var client = args.SocketClient;
 
                 var bytesRead = -1;
-                var buf = new byte[1];
+                var buffer = new byte[20];
 
                 while (bytesRead != 0)
                 {
-                    bytesRead = await args.SocketClient.ReadStream.ReadAsync(buf, 0, 1);
+                    bytesRead = await args.SocketClient.ReadStream.ReadAsync(buffer, 0, 20);
                     if (bytesRead > 0)
-                        Debug.WriteLine(buf[0]);
+                    {
+                        Debug.WriteLine(BitConverter.ToString(buffer));
+                        OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(buffer) });
+                    }
                 }
             };
 

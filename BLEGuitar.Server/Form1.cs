@@ -1,5 +1,4 @@
 ﻿using BLEGuitar.Commons.Network;
-using BLEGuitar.Driver;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -79,12 +78,6 @@ namespace BLEGuitar.Server
                     break;
             }
                 
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            UsbDriver driver = new UsbDriver();
-            driver.List();
         }
     }
 }

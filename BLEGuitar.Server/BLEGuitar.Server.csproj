@@ -79,6 +79,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="packages.config" />
+    <None Include="project.json" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -96,10 +97,6 @@
     <ProjectReference Include="..\BLEGuitar.Commons\BLEGuitar.Commons.csproj">
       <Project>{94F82982-16EE-4751-83AE-6371A286FC7B}</Project>
       <Name>BLEGuitar.Commons</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BLEGuitar.Driver\BLEGuitar.Driver.csproj">
-      <Project>{36d2ccea-66ec-4d43-bae7-32fa30645bc7}</Project>
-      <Name>BLEGuitar.Driver</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

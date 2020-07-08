@@ -15,7 +15,7 @@ namespace BLEGuitar.Server
 
     public partial class Form1 : Form
     {
-        private readonly BLEGuitarFinder guitar = new BLEGuitarFinder();
+        private readonly IBLEGuitarDevice guitar = new BLEGuitar();
         private readonly WindowsInput.InputSimulator simulator = new WindowsInput.InputSimulator();
 
         public Form1()
@@ -25,11 +25,20 @@ namespace BLEGuitar.Server
 
         private void button2_Click(object sender, EventArgs e)
         {
+            button2.Enabled = false;
             guitar.FindAndConnect();
             guitar.DataReceived += Guitar_DataReceived;
         }
 
-        private void Guitar_DataReceived(object sender, BLEGuitarFinder.DataReceivedArgs e)
+        private void button3_Click(object sender, EventArgs e)
+        {
+            guitar.DataReceived -= Guitar_DataReceived;
+            var t = guitar.Disconnect();
+            t.Wait();
+            button2.Enabled = true;
+        }
+
+        private void Guitar_DataReceived(object sender, DataReceivedArgs e)
         {
             if (e.Snapshot.Fret1 == Commons.ButtonState.Pressed)
                 simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_1);
@@ -76,12 +85,6 @@ namespace BLEGuitar.Server
                 default:
                     break;
             }
-        }
-
-        private async void button3_Click(object sender, EventArgs e)
-        {
-            await guitar.Disconnect();
-            guitar.DataReceived -= Guitar_DataReceived;
         }
     }
 }

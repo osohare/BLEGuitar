@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -14,6 +15,11 @@ namespace BLEGuitar.Server
 {
     public class BLEGuitar : IBLEGuitarDevice
     {
+        private readonly bool isPolling = true;
+        private Task pollingTask;
+        private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
+        private CancellationToken token;
+
         private BluetoothLEAdvertisementWatcher watcher;
         private const string GuitarDeviceName = "Ble Guitar";
 
@@ -27,6 +33,11 @@ namespace BLEGuitar.Server
         protected void OnDataReceived(DataReceivedArgs e)
         {
             DataReceived?.Invoke(this, e);
+        }
+
+        public BLEGuitar() 
+        {
+            token = tokenSource.Token;
         }
 
         public void FindAndConnect()
@@ -51,12 +62,32 @@ namespace BLEGuitar.Server
                         {
                             guitarCharacteristic = characteristics.Characteristics.First(c => c.Uuid == characteristicsGUID);
 
-                            var status = await guitarCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
-                                GattClientCharacteristicConfigurationDescriptorValue.Notify);
-
-                            if (status == GattCommunicationStatus.Success)
+                            //Found characteristic, either subscribe for event based or poll every x ms
+                            if (isPolling)
                             {
-                                guitarCharacteristic.ValueChanged += Characteristic_ValueChanged;
+                                pollingTask = Task.Factory.StartNew(async () => {
+                                    while (!token.IsCancellationRequested)
+                                    {
+                                        var result = await guitarCharacteristic.ReadValueAsync(BluetoothCacheMode.Uncached);
+
+                                        CryptographicBuffer.CopyToByteArray(result.Value, out byte[] data);
+                                        OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
+                                        Debug.WriteLine(BitConverter.ToString(data));
+
+                                        await Task.Delay(10);
+                                    }
+                                    //token.ThrowIfCancellationRequested();
+                                }, token);
+                            }
+                            else
+                            {
+                                var status = await guitarCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                                                        GattClientCharacteristicConfigurationDescriptorValue.Notify);
+
+                                if (status == GattCommunicationStatus.Success)
+                                {
+                                    guitarCharacteristic.ValueChanged += Characteristic_ValueChanged;
+                                }
                             }
                         }
                     }
@@ -74,9 +105,7 @@ namespace BLEGuitar.Server
         private void Characteristic_ValueChanged(GattCharacteristic sender, GattValueChangedEventArgs args)
         {
             CryptographicBuffer.CopyToByteArray(args.CharacteristicValue, out byte[] data);
-
             OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
-
             Debug.WriteLine(BitConverter.ToString(data));
         }
 
@@ -88,10 +117,18 @@ namespace BLEGuitar.Server
 
             if (guitarCharacteristic != null)
             {
-                guitarCharacteristic.ValueChanged -= Characteristic_ValueChanged;
+                if (isPolling)
+                {
+                    tokenSource.Cancel();
+                    pollingTask = null;
+                }
+                else
+                {
+                    guitarCharacteristic.ValueChanged -= Characteristic_ValueChanged;
 
-                var status = await guitarCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
-                    GattClientCharacteristicConfigurationDescriptorValue.None);
+                    var status = await guitarCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(
+                                            GattClientCharacteristicConfigurationDescriptorValue.None);
+                }
             }
         }
 

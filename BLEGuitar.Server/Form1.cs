@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindowsInput.Native;
 
 namespace BLEGuitar.Server
 {
@@ -18,9 +19,19 @@ namespace BLEGuitar.Server
         private readonly IBLEGuitarDevice guitar = new BLEGuitar();
         private readonly WindowsInput.InputSimulator simulator = new WindowsInput.InputSimulator();
 
+        private readonly Action<Commons.ButtonState, VirtualKeyCode> ProcessButtonState;
+
         public Form1()
         {
             InitializeComponent();
+
+            ProcessButtonState = (state, keycode) => 
+            {
+                if (state == Commons.ButtonState.Pressed)
+                    simulator.Keyboard.KeyDown(keycode);
+                else
+                    simulator.Keyboard.KeyUp(keycode);
+            };
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -40,51 +51,66 @@ namespace BLEGuitar.Server
 
         private void Guitar_DataReceived(object sender, DataReceivedArgs e)
         {
-            if (e.Snapshot.Fret1 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_1);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_1);
+            ProcessButtonState(e.Snapshot.Fret1, VirtualKeyCode.VK_1);
+            ProcessButtonState(e.Snapshot.Fret2, VirtualKeyCode.VK_2);
+            ProcessButtonState(e.Snapshot.Fret3, VirtualKeyCode.VK_3);
+            ProcessButtonState(e.Snapshot.Fret4, VirtualKeyCode.VK_4);
+            ProcessButtonState(e.Snapshot.Fret5, VirtualKeyCode.VK_5);
+            ProcessButtonState(e.Snapshot.Fret6, VirtualKeyCode.VK_6);
 
-            if (e.Snapshot.Fret2 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_2);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_2);
-
-            if (e.Snapshot.Fret3 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_3);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_3);
-
-            if (e.Snapshot.Fret4 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_4);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_4);
-
-            if (e.Snapshot.Fret5 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_5);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_5);
-
-            if (e.Snapshot.Fret6 == Commons.ButtonState.Pressed)
-                simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_6);
-            else
-                simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_6);
+            ProcessButtonState(e.Snapshot.Pause, VirtualKeyCode.VK_P);
+            ProcessButtonState(e.Snapshot.LiveTV, VirtualKeyCode.VK_P);
+            ProcessButtonState(e.Snapshot.HeroPower, VirtualKeyCode.VK_P);
+            ProcessButtonState(e.Snapshot.Power, VirtualKeyCode.VK_P);
 
             switch (e.Snapshot.StrumBar)
             {
                 case Commons.StrumBarState.StrumBarNeutral:
-                    simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.DOWN);
-                    simulator.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.UP);
+                    simulator.Keyboard.KeyUp(VirtualKeyCode.DOWN);
+                    simulator.Keyboard.KeyUp(VirtualKeyCode.UP);
                     break;
                 case Commons.StrumBarState.StrumBarUp:
-                    simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.UP);
+                    simulator.Keyboard.KeyDown(VirtualKeyCode.UP);
                     break;
                 case Commons.StrumBarState.StrumBarDown:
-                    simulator.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.DOWN);
+                    simulator.Keyboard.KeyDown(VirtualKeyCode.DOWN);
                     break;
                 default:
                     break;
             }
+
+            switch (e.Snapshot.Navigator)
+            {
+                case 0:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+                    break;
+                case 1:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+                    break;
+                case 2:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+                    break;
+                case 3:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+                    break;
+                case 4:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+                    break;
+                case 5:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+                    break;
+                case 6:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+                    break;
+                case 7:
+                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+                    break;
+                case 15:
+                default:
+                    break;
+            }
+
+            //e.Snapshot.WhammyBar
         }
     }
 }

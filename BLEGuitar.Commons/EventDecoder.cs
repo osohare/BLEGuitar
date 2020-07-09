@@ -27,7 +27,7 @@ namespace BLEGuitar.Commons
             CurrentState.Power = IsPressed(values[1], ButtonConstants.BUTTON_POWER_PRESSED) ? ButtonState.Pressed : ButtonState.NotPressed;
 
             /// values[2] = "navigator"; //0f - 00 01 02 03 04 05 06 07
-            CurrentState.Navigator = 0;
+            CurrentState.Navigator = values[2];
 
             /// values[4] = "strumbar"; //80 - ff down 00 up
             switch (values[4])

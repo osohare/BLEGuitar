@@ -8,30 +8,6 @@ using System.Threading.Tasks;
 
 namespace BLEGuitar.Server
 {
-    /// <summary>
-    /// http://www.flint.jp/misc/?q=dik&lang=en
-    /// https://community.bistudio.com/wiki/DIK_KeyCodes
-    /// </summary>
-    public enum DIKKeyCode : short
-    {
-        DIK_ESCAPE = 0x01,
-        DIK_1 = 0x02,
-        DIK_2 = 0x03,
-        DIK_3 = 0x04,
-        DIK_4 = 0x05,
-        DIK_5 = 0x06,
-        DIK_6 = 0x07,
-        DIK_7 = 0x08,
-        DIK_8 = 0x09,
-        DIK_9 = 0x0A,
-        DIK_0 = 0x0B,
-        DIK_RETURN = 0x1C,
-        DIK_DOWN = 0xD0,
-        DIK_UP = 0xC8,
-        DIK_LEFT = 0xCB,
-        DIK_RIGHT = 0xCD
-    }
-
     public class DXHelper
     {
         [Flags]

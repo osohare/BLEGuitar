@@ -1,6 +1,8 @@
-﻿using System;
+﻿using BLEGuitar.Commons;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ButtonState = BLEGuitar.Commons.ButtonState;
 
 namespace BLEGuitar.Server
 {
@@ -18,18 +21,37 @@ namespace BLEGuitar.Server
         private readonly IBLEGuitarDevice guitar = new BLEGuitar();
         private readonly DXHelper simulator = new DXHelper();
 
-        private readonly Action<Commons.ButtonState, DIKKeyCode> ProcessButtonState;
+        private readonly Action<ButtonState, ButtonState, DIKKeyCode> ProcessButtonState;
+        private GuitarButtonsState PreviousSnapshot = new GuitarButtonsState();
+
+        private readonly Dictionary<string, DIKKeyCode> KeyMap = new Dictionary<string, DIKKeyCode>();
 
         public Form1()
         {
             InitializeComponent();
 
-            ProcessButtonState = (state, keycode) => 
+            foreach (var property in PreviousSnapshot.GetType().GetProperties())
             {
-                if (state == Commons.ButtonState.Pressed)
+                string keyValue = ConfigurationManager.AppSettings[property.Name];
+                if (Enum.TryParse(keyValue, true, out DIKKeyCode keyMap))
+                {
+                    KeyMap.Add(property.Name, keyMap);
+                }
+            }
+
+            ProcessButtonState = (oldState, newState, keycode) =>
+            {
+                if (newState == ButtonState.Pressed)
+                {
                     simulator.KeyDown(keycode);
+                }
                 else
-                    simulator.KeyUp(keycode);
+                {
+                    if (oldState != newState)
+                    {
+                        simulator.KeyUp(keycode);
+                    }
+                }
             };
         }
 
@@ -50,29 +72,35 @@ namespace BLEGuitar.Server
 
         private void Guitar_DataReceived(object sender, DataReceivedArgs e)
         {
-            ProcessButtonState(e.Snapshot.Fret1, DIKKeyCode.DIK_1);
-            ProcessButtonState(e.Snapshot.Fret2, DIKKeyCode.DIK_2);
-            ProcessButtonState(e.Snapshot.Fret3, DIKKeyCode.DIK_3);
-            ProcessButtonState(e.Snapshot.Fret4, DIKKeyCode.DIK_4);
-            ProcessButtonState(e.Snapshot.Fret5, DIKKeyCode.DIK_5);
-            ProcessButtonState(e.Snapshot.Fret6, DIKKeyCode.DIK_6);
-
-            ProcessButtonState(e.Snapshot.Pause, DIKKeyCode.DIK_RETURN);
-            ProcessButtonState(e.Snapshot.LiveTV, DIKKeyCode.DIK_RETURN);
-            ProcessButtonState(e.Snapshot.HeroPower, DIKKeyCode.DIK_RETURN);
-            ProcessButtonState(e.Snapshot.Power, DIKKeyCode.DIK_RETURN);
+            ProcessButtonState(PreviousSnapshot.Fret1, e.Snapshot.Fret1, KeyMap[nameof(GuitarButtonsState.Fret1)]);
+            ProcessButtonState(PreviousSnapshot.Fret2, e.Snapshot.Fret2, KeyMap[nameof(GuitarButtonsState.Fret2)]);
+            ProcessButtonState(PreviousSnapshot.Fret3, e.Snapshot.Fret3, KeyMap[nameof(GuitarButtonsState.Fret3)]);
+            ProcessButtonState(PreviousSnapshot.Fret4, e.Snapshot.Fret4, KeyMap[nameof(GuitarButtonsState.Fret4)]);
+            ProcessButtonState(PreviousSnapshot.Fret5, e.Snapshot.Fret5, KeyMap[nameof(GuitarButtonsState.Fret5)]);
+            ProcessButtonState(PreviousSnapshot.Fret6, e.Snapshot.Fret6, KeyMap[nameof(GuitarButtonsState.Fret6)]);
+            ProcessButtonState(PreviousSnapshot.Pause, e.Snapshot.Pause, KeyMap[nameof(GuitarButtonsState.Pause)]);
+            ProcessButtonState(PreviousSnapshot.LiveTV, e.Snapshot.LiveTV, KeyMap[nameof(GuitarButtonsState.LiveTV)]);
+            ProcessButtonState(PreviousSnapshot.HeroPower, e.Snapshot.HeroPower, KeyMap[nameof(GuitarButtonsState.HeroPower)]);
+            ProcessButtonState(PreviousSnapshot.Power, e.Snapshot.Power, KeyMap[nameof(GuitarButtonsState.Power)]);
 
             switch (e.Snapshot.StrumBar)
             {
-                case Commons.StrumBarState.StrumBarNeutral:
-                    simulator.KeyUp(DIKKeyCode.DIK_DOWN);
-                    simulator.KeyUp(DIKKeyCode.DIK_UP);
+                case StrumBarState.StrumBarNeutral:
+                    if (PreviousSnapshot.StrumBar == StrumBarState.StrumBarUp)
+                    {
+                        ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_8);
+                    }
+
+                    if (PreviousSnapshot.StrumBar == StrumBarState.StrumBarDown)
+                    {
+                        ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_9);
+                    }
                     break;
-                case Commons.StrumBarState.StrumBarUp:
-                    simulator.KeyDown(DIKKeyCode.DIK_UP);
+                case StrumBarState.StrumBarUp:
+                    ProcessButtonState(ButtonState.NotPressed, ButtonState.Pressed, DIKKeyCode.DIK_8);
                     break;
-                case Commons.StrumBarState.StrumBarDown:
-                    simulator.KeyDown(DIKKeyCode.DIK_DOWN);
+                case StrumBarState.StrumBarDown:
+                    ProcessButtonState(ButtonState.NotPressed, ButtonState.Pressed, DIKKeyCode.DIK_9);
                     break;
                 default:
                     break;
@@ -81,28 +109,28 @@ namespace BLEGuitar.Server
             //switch (e.Snapshot.Navigator)
             //{
             //    case 0:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+            //        simulator.KeyDown(DIKKeyCode.DIK_W);
             //        break;
             //    case 1:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+            //        simulator.KeyDown(DIKKeyCode.DIK_W);
             //        break;
             //    case 2:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+            //        simulator.KeyDown(DIKKeyCode.DIK_A);
             //        break;
             //    case 3:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+            //        simulator.KeyDown(DIKKeyCode.DIK_A);
             //        break;
             //    case 4:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+            //        simulator.KeyDown(DIKKeyCode.DIK_S);
             //        break;
             //    case 5:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+            //        simulator.KeyDown(DIKKeyCode.DIK_S);
             //        break;
             //    case 6:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+            //        simulator.KeyDown(DIKKeyCode.DIK_D);
             //        break;
             //    case 7:
-            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+            //        simulator.KeyDown(DIKKeyCode.DIK_D);
             //        break;
             //    case 15:
             //    default:
@@ -110,6 +138,8 @@ namespace BLEGuitar.Server
             //}
 
             //e.Snapshot.WhammyBar
+
+            PreviousSnapshot = e.Snapshot;
         }
     }
 }

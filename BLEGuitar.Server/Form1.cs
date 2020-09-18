@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WindowsInput.Native;
 
 namespace BLEGuitar.Server
 {
@@ -17,9 +16,9 @@ namespace BLEGuitar.Server
     public partial class Form1 : Form
     {
         private readonly IBLEGuitarDevice guitar = new BLEGuitar();
-        private readonly WindowsInput.InputSimulator simulator = new WindowsInput.InputSimulator();
+        private readonly DXHelper simulator = new DXHelper();
 
-        private readonly Action<Commons.ButtonState, VirtualKeyCode> ProcessButtonState;
+        private readonly Action<Commons.ButtonState, DIKKeyCode> ProcessButtonState;
 
         public Form1()
         {
@@ -28,9 +27,9 @@ namespace BLEGuitar.Server
             ProcessButtonState = (state, keycode) => 
             {
                 if (state == Commons.ButtonState.Pressed)
-                    simulator.Keyboard.KeyDown(keycode);
+                    simulator.KeyDown(keycode);
                 else
-                    simulator.Keyboard.KeyUp(keycode);
+                    simulator.KeyUp(keycode);
             };
         }
 
@@ -51,64 +50,64 @@ namespace BLEGuitar.Server
 
         private void Guitar_DataReceived(object sender, DataReceivedArgs e)
         {
-            ProcessButtonState(e.Snapshot.Fret1, VirtualKeyCode.VK_1);
-            ProcessButtonState(e.Snapshot.Fret2, VirtualKeyCode.VK_2);
-            ProcessButtonState(e.Snapshot.Fret3, VirtualKeyCode.VK_3);
-            ProcessButtonState(e.Snapshot.Fret4, VirtualKeyCode.VK_4);
-            ProcessButtonState(e.Snapshot.Fret5, VirtualKeyCode.VK_5);
-            ProcessButtonState(e.Snapshot.Fret6, VirtualKeyCode.VK_6);
+            ProcessButtonState(e.Snapshot.Fret1, DIKKeyCode.DIK_1);
+            ProcessButtonState(e.Snapshot.Fret2, DIKKeyCode.DIK_2);
+            ProcessButtonState(e.Snapshot.Fret3, DIKKeyCode.DIK_3);
+            ProcessButtonState(e.Snapshot.Fret4, DIKKeyCode.DIK_4);
+            ProcessButtonState(e.Snapshot.Fret5, DIKKeyCode.DIK_5);
+            ProcessButtonState(e.Snapshot.Fret6, DIKKeyCode.DIK_6);
 
-            ProcessButtonState(e.Snapshot.Pause, VirtualKeyCode.VK_P);
-            ProcessButtonState(e.Snapshot.LiveTV, VirtualKeyCode.VK_P);
-            ProcessButtonState(e.Snapshot.HeroPower, VirtualKeyCode.VK_P);
-            ProcessButtonState(e.Snapshot.Power, VirtualKeyCode.VK_P);
+            ProcessButtonState(e.Snapshot.Pause, DIKKeyCode.DIK_RETURN);
+            ProcessButtonState(e.Snapshot.LiveTV, DIKKeyCode.DIK_RETURN);
+            ProcessButtonState(e.Snapshot.HeroPower, DIKKeyCode.DIK_RETURN);
+            ProcessButtonState(e.Snapshot.Power, DIKKeyCode.DIK_RETURN);
 
             switch (e.Snapshot.StrumBar)
             {
                 case Commons.StrumBarState.StrumBarNeutral:
-                    simulator.Keyboard.KeyUp(VirtualKeyCode.DOWN);
-                    simulator.Keyboard.KeyUp(VirtualKeyCode.UP);
+                    simulator.KeyUp(DIKKeyCode.DIK_DOWN);
+                    simulator.KeyUp(DIKKeyCode.DIK_UP);
                     break;
                 case Commons.StrumBarState.StrumBarUp:
-                    simulator.Keyboard.KeyDown(VirtualKeyCode.UP);
+                    simulator.KeyDown(DIKKeyCode.DIK_UP);
                     break;
                 case Commons.StrumBarState.StrumBarDown:
-                    simulator.Keyboard.KeyDown(VirtualKeyCode.DOWN);
+                    simulator.KeyDown(DIKKeyCode.DIK_DOWN);
                     break;
                 default:
                     break;
             }
 
-            switch (e.Snapshot.Navigator)
-            {
-                case 0:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
-                    break;
-                case 1:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
-                    break;
-                case 2:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
-                    break;
-                case 3:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
-                    break;
-                case 4:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
-                    break;
-                case 5:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
-                    break;
-                case 6:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
-                    break;
-                case 7:
-                    simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
-                    break;
-                case 15:
-                default:
-                    break;
-            }
+            //switch (e.Snapshot.Navigator)
+            //{
+            //    case 0:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+            //        break;
+            //    case 1:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_W);
+            //        break;
+            //    case 2:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+            //        break;
+            //    case 3:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_A);
+            //        break;
+            //    case 4:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+            //        break;
+            //    case 5:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_S);
+            //        break;
+            //    case 6:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+            //        break;
+            //    case 7:
+            //        simulator.Keyboard.KeyPress(VirtualKeyCode.VK_D);
+            //        break;
+            //    case 15:
+            //    default:
+            //        break;
+            //}
 
             //e.Snapshot.WhammyBar
         }

@@ -8,6 +8,8 @@ namespace BLEGuitar.Server
 {
     static class Program
     {
+        public static bool TraceEnabled = false;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

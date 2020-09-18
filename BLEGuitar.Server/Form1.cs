@@ -47,10 +47,7 @@ namespace BLEGuitar.Server
                 }
                 else
                 {
-                    if (oldState != newState)
-                    {
-                        simulator.KeyUp(keycode);
-                    }
+                    simulator.KeyUp(keycode);
                 }
             };
         }
@@ -86,56 +83,59 @@ namespace BLEGuitar.Server
             switch (e.Snapshot.StrumBar)
             {
                 case StrumBarState.StrumBarNeutral:
-                    if (PreviousSnapshot.StrumBar == StrumBarState.StrumBarUp)
-                    {
                         ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_8);
-                    }
-
-                    if (PreviousSnapshot.StrumBar == StrumBarState.StrumBarDown)
-                    {
                         ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_9);
-                    }
                     break;
                 case StrumBarState.StrumBarUp:
                     ProcessButtonState(ButtonState.NotPressed, ButtonState.Pressed, DIKKeyCode.DIK_8);
+                    ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_9);
                     break;
                 case StrumBarState.StrumBarDown:
+                    ProcessButtonState(ButtonState.Pressed, ButtonState.NotPressed, DIKKeyCode.DIK_8);
                     ProcessButtonState(ButtonState.NotPressed, ButtonState.Pressed, DIKKeyCode.DIK_9);
                     break;
                 default:
                     break;
             }
 
-            //switch (e.Snapshot.Navigator)
-            //{
-            //    case 0:
-            //        simulator.KeyDown(DIKKeyCode.DIK_W);
-            //        break;
-            //    case 1:
-            //        simulator.KeyDown(DIKKeyCode.DIK_W);
-            //        break;
-            //    case 2:
-            //        simulator.KeyDown(DIKKeyCode.DIK_A);
-            //        break;
-            //    case 3:
-            //        simulator.KeyDown(DIKKeyCode.DIK_A);
-            //        break;
-            //    case 4:
-            //        simulator.KeyDown(DIKKeyCode.DIK_S);
-            //        break;
-            //    case 5:
-            //        simulator.KeyDown(DIKKeyCode.DIK_S);
-            //        break;
-            //    case 6:
-            //        simulator.KeyDown(DIKKeyCode.DIK_D);
-            //        break;
-            //    case 7:
-            //        simulator.KeyDown(DIKKeyCode.DIK_D);
-            //        break;
-            //    case 15:
-            //    default:
-            //        break;
-            //}
+            switch (e.Snapshot.Navigator)
+            {
+                case 0:
+                    simulator.KeyDown(DIKKeyCode.DIK_W);
+                    break;
+                case 1:
+                    simulator.KeyDown(DIKKeyCode.DIK_W);
+                    simulator.KeyDown(DIKKeyCode.DIK_A);
+                    break;
+                case 2:
+                    simulator.KeyDown(DIKKeyCode.DIK_A);
+                    break;
+                case 3:
+                    simulator.KeyDown(DIKKeyCode.DIK_A);
+                    simulator.KeyDown(DIKKeyCode.DIK_S);
+                    break;
+                case 4:
+                    simulator.KeyDown(DIKKeyCode.DIK_S);
+                    break;
+                case 5:
+                    simulator.KeyDown(DIKKeyCode.DIK_S);
+                    simulator.KeyDown(DIKKeyCode.DIK_D);
+                    break;
+                case 6:
+                    simulator.KeyDown(DIKKeyCode.DIK_D);
+                    break;
+                case 7:
+                    simulator.KeyDown(DIKKeyCode.DIK_D);
+                    simulator.KeyDown(DIKKeyCode.DIK_W);
+                    break;
+                case 15:
+                default:
+                    simulator.KeyUp(DIKKeyCode.DIK_W);
+                    simulator.KeyUp(DIKKeyCode.DIK_A);
+                    simulator.KeyUp(DIKKeyCode.DIK_S);
+                    simulator.KeyUp(DIKKeyCode.DIK_D);
+                    break;
+            }
 
             //e.Snapshot.WhammyBar
 

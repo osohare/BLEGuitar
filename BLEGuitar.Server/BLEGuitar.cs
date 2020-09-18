@@ -73,10 +73,10 @@ namespace BLEGuitar.Server
                                         CryptographicBuffer.CopyToByteArray(result.Value, out byte[] data);
                                         OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
 #if DEBUG
-                                        Debug.WriteLine(BitConverter.ToString(data));
+                                        if (Program.TraceEnabled)
+                                            Debug.WriteLine(BitConverter.ToString(data));
 #endif
-
-                                        await Task.Delay(10);
+                                        //await Task.Delay(5);
                                     }
                                     //token.ThrowIfCancellationRequested();
                                 }, token);
@@ -99,7 +99,8 @@ namespace BLEGuitar.Server
             watcher.Stopped += (_, args) =>
             {
 #if DEBUG
-                Debug.WriteLine("Watcher stopped");
+                if (Program.TraceEnabled)
+                    Debug.WriteLine("Watcher stopped");
 #endif
             };
 
@@ -111,7 +112,8 @@ namespace BLEGuitar.Server
             CryptographicBuffer.CopyToByteArray(args.CharacteristicValue, out byte[] data);
             OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
 #if DEBUG
-            //Debug.WriteLine(BitConverter.ToString(data));
+            if (Program.TraceEnabled)
+                Debug.WriteLine(BitConverter.ToString(data));
 #endif
         }
 

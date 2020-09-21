@@ -22,7 +22,7 @@ namespace BLEGuitar.Server
 
         private BluetoothLEAdvertisementWatcher watcher;
         private const string GuitarDeviceName = "Ble Guitar";
-
+        private const int PollMillisecondsDelay = 10;
         private Guid serviceGUID = new Guid("533e1523-3abe-f33f-cd00-594e8b0a8ea3");
         private Guid characteristicsGUID = new Guid("533e1524-3abe-f33f-cd00-594e8b0a8ea3");
         private GattCharacteristic guitarCharacteristic;
@@ -72,13 +72,9 @@ namespace BLEGuitar.Server
 
                                         CryptographicBuffer.CopyToByteArray(result.Value, out byte[] data);
                                         OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
-#if DEBUG
-                                        if (Program.TraceEnabled)
-                                            Debug.WriteLine(BitConverter.ToString(data));
-#endif
-                                        //await Task.Delay(5);
+
+                                        await Task.Delay(PollMillisecondsDelay);
                                     }
-                                    //token.ThrowIfCancellationRequested();
                                 }, token);
                             }
                             else
@@ -98,10 +94,7 @@ namespace BLEGuitar.Server
 
             watcher.Stopped += (_, args) =>
             {
-#if DEBUG
-                if (Program.TraceEnabled)
-                    Debug.WriteLine("Watcher stopped");
-#endif
+
             };
 
             watcher.Start();
@@ -111,10 +104,6 @@ namespace BLEGuitar.Server
         {
             CryptographicBuffer.CopyToByteArray(args.CharacteristicValue, out byte[] data);
             OnDataReceived(new DataReceivedArgs() { Snapshot = decoder.SetValues(data) });
-#if DEBUG
-            if (Program.TraceEnabled)
-                Debug.WriteLine(BitConverter.ToString(data));
-#endif
         }
 
 

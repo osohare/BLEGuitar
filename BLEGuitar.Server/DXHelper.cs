@@ -11,7 +11,7 @@ namespace BLEGuitar.Server
     public class DXHelper
     {
         [Flags]
-        private enum KeyFlag
+        public enum KeyFlag
         {
             KeyDown = 0x0000,
             ExtendedKey = 0x0001,
@@ -89,27 +89,25 @@ namespace BLEGuitar.Server
             public short wParamH;
         }
 
-        public void KeyUp(DIKKeyCode keycode)
+        public void SendInput(List<Tuple<KeyFlag, short>> inputs)
         {
-            SendInput(KeyFlag.KeyUp, (short)keycode);
-        }
+            INPUT[] InputData = new INPUT[inputs.Count];
+            var i = 0;
+            foreach (var input in inputs)
+            {
+                KeyFlag flag = input.Item1;
+                short keycode = input.Item2;
 
-        public void KeyDown(DIKKeyCode keycode)
-        {
-            SendInput(KeyFlag.KeyDown, (short)keycode);
-        }
+                InputData[i].type = (int)InputType.INPUT_KEYBOARD;
+                InputData[i].ki.wScan = keycode;
+                InputData[i].ki.dwFlags = (int)(flag | KeyFlag.ScanCode);
+                InputData[i].ki.time = 0;
+                InputData[i].ki.dwExtraInfo = IntPtr.Zero;
 
-        private void SendInput(KeyFlag flag, short keycode)
-        {
-            INPUT[] InputData = new INPUT[1];
+                i++;
+            }
 
-            InputData[0].type = (int)InputType.INPUT_KEYBOARD;
-            InputData[0].ki.wScan = keycode;
-            InputData[0].ki.dwFlags = (int)(flag | KeyFlag.ScanCode);
-            InputData[0].ki.time = 0;
-            InputData[0].ki.dwExtraInfo = IntPtr.Zero;
-
-            SendInput(1, InputData, Marshal.SizeOf(typeof(INPUT)));
+            SendInput((uint)inputs.Count, InputData, Marshal.SizeOf(typeof(INPUT)));
         }
 
         private void SendMouseInput(int x, int y)

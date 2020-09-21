@@ -40,6 +40,7 @@ namespace BLEGuitar.Server
         {
             var inputs = GetInputs(e.Snapshot);
             simulator.SendInput(inputs);
+            simulator.SendMouseInput(e.Snapshot.WhammyBar, e.Snapshot.WhammyBar);
         }
 
         private List<Tuple<KeyFlag, short>> GetInputs(GuitarButtonsState e)

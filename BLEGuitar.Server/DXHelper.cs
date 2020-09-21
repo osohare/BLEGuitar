@@ -10,6 +10,8 @@ namespace BLEGuitar.Server
 {
     public class DXHelper
     {
+        private const int MagicNumber = 300;
+
         [Flags]
         public enum KeyFlag
         {
@@ -110,15 +112,15 @@ namespace BLEGuitar.Server
             SendInput((uint)inputs.Count, InputData, Marshal.SizeOf(typeof(INPUT)));
         }
 
-        private void SendMouseInput(int x, int y)
+        public void SendMouseInput(int x, int y)
         {
             INPUT[] InputData = new INPUT[1];
             InputData[0].type = (int)InputType.INPUT_MOUSE;
             InputData[0].mi.mouseData = 0;
             InputData[0].mi.time = 0;
-            InputData[0].mi.dx = x;
-            InputData[0].mi.dy = y;
-            InputData[0].mi.dwFlags = (int)MouseFlag.MOUSEEVENTF_MOVE;
+            InputData[0].mi.dx = x * MagicNumber;
+            InputData[0].mi.dy = y * MagicNumber;
+            InputData[0].mi.dwFlags = (int)(MouseFlag.MOUSEEVENTF_MOVE | MouseFlag.MOUSEEVENTF_ABSOLUTE);
             SendInput(1, InputData, Marshal.SizeOf(typeof(INPUT)));
         }
     }
